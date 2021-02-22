@@ -33,6 +33,8 @@ public class Sprite {
         this.pos.add(this.vel);
     }
 
+    public void setPos(Vector newPos) { this.pos = newPos; }
+
     public static void main(String[] args) {
         Vector pos = new Vector(30, 30);
         Vector vel = new Vector(2, 2);

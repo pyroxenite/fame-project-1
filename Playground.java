@@ -1,11 +1,18 @@
 import javax.swing.*;
-import java.util.*; 
+import java.util.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class Playground extends JPanel {
     private transient ArrayList<Sprite> sprites = new ArrayList<>();
     private static final int BALL_RADIUS = 10;
     private static Random rand = new Random();
+
+    private Sprite playerPaddle = new Sprite(
+        new Vector(0, 375), 
+        new Vector(0, 0), 
+        "Paddle"
+    );
 
     public Playground(int n) {
         super();
@@ -20,6 +27,15 @@ public class Playground extends JPanel {
             );
             sprites.add(new Sprite(pos, vel, "ball"));
         }
+
+        this.addMouseMotionListener(new MouseMotionListener() {
+            public void mouseMoved(MouseEvent e) {
+                playerPaddle.setPos(new Vector(e.getX(), 375));
+            }
+            public void mouseDragged(MouseEvent e) {
+                // do something else? could be a different mechanic
+            }
+        });
     }
 
     /**
@@ -36,6 +52,9 @@ public class Playground extends JPanel {
             RenderingHints.VALUE_ANTIALIAS_ON
         ));
 
+        //clear panel
+        g.clearRect(0, 0, 400, 400);
+
         for (Sprite s : sprites) {
             Vector pos = s.getPos();
             g.setColor(Color.red);
@@ -46,6 +65,11 @@ public class Playground extends JPanel {
                 2 * BALL_RADIUS
             );
         }
+
+        Vector ppPos = playerPaddle.getPos();
+        g.setColor(Color.BLACK);
+        g.fillRect((int)ppPos.getX(), (int)ppPos.getY(), 50, 10);
+
         this.repaint();
     }
     

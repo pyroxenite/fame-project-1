@@ -42,8 +42,8 @@ public class SimpleRender implements ActionListener, Runnable {
      * rate by a `ScheduledExecutorService` as soon as `startGame` is called.
      */
     public void run()  {
-        playground.animate();
         playground.doPhysics();
+        playground.animate();
     }
 
     /**
