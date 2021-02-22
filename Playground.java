@@ -28,6 +28,14 @@ public class Playground extends JPanel {
      */
     @Override
     public void paintComponent(Graphics g) {
+
+        // turns on antialising
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHints(new RenderingHints(
+            RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON
+        ));
+
         for (Sprite s : sprites) {
             Vector pos = s.getPos();
             g.setColor(Color.red);
@@ -59,14 +67,14 @@ public class Playground extends JPanel {
                 s.getPos().setX(BALL_RADIUS);
                 s.getVel().scaleX(-1);
             } else if (s.getPos().getX() > 400 - BALL_RADIUS) {
-                s.getPos().setX(400 - BALL_RADIUS);
+                s.getPos().setX(400.0 - BALL_RADIUS);
                 s.getVel().scaleX(-1);
             }
             if (s.getPos().getY() < BALL_RADIUS) {
                 s.getPos().setY(BALL_RADIUS);
                 s.getVel().scaleY(-1);
             } else if (s.getPos().getY() > 400 - BALL_RADIUS) {
-                s.getPos().setY(400 - BALL_RADIUS);
+                s.getPos().setY(400.0 - BALL_RADIUS);
                 s.getVel().scaleY(-1);
             }
         }
