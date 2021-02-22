@@ -1,13 +1,14 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.concurrent.*;
 
-public class SimpleRender implements ActionListener {
-
-    JFrame frame = new JFrame();
-    JPanel panel = new JPanel();
-    JButton button = new JButton("Animate");
-    Playground playground = new Playground(20);
+public class SimpleRender implements ActionListener, Runnable {
+    private static final int FPS = 60;
+    private JFrame frame = new JFrame();
+    private JPanel panel = new JPanel();
+    private JButton button = new JButton("Animate");
+    private Playground playground = new Playground(20);
 
     public SimpleRender() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,27 +38,23 @@ public class SimpleRender implements ActionListener {
     }
 
     /**
-     * This function implements a game loop calling the `animate` and `doPhysics` 
-     * methods. It never returns so this should be the last function called in `main`.
+     * This method is used to implement the `Runnable` interface. It gets called at a fixed 
+     * rate by a `ScheduledExecutorService` as soon as `startGame` is called.
      */
     public void run()  {
-        long lastTime = System.nanoTime();
-        final double ns = 1000000000.0 / 60.0;
-        double delta = 0;
-        while (delta != -1) {
-            long now = System.nanoTime();
-            delta += (now - lastTime) / ns;
-            lastTime = now;
-            while (delta >= 0) { // while (true)
-                playground.animate();
-                playground.doPhysics();
-                delta--;
-            }
-        } 
+        playground.animate();
+        playground.doPhysics();
     }
-    
-    public static void main(String[] args) {  
-        SimpleRender sr = new SimpleRender();
-        sr.run();
+
+    /**
+     * Begins render loop.
+     */
+    private void startGame() {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(this, 0, 1000 / FPS, TimeUnit.MILLISECONDS);
+    }
+
+    public static void main(String[] args) {
+        new SimpleRender().startGame();
     }
 }
