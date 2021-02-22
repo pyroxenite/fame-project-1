@@ -1,18 +1,16 @@
 import javax.swing.*;
+import java.lang.Math.*;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+
 
 public class Playground extends JPanel {
     private transient ArrayList<Sprite> sprites = new ArrayList<>();
     private static final int BALL_RADIUS = 10;
     private static Random rand = new Random();
 
-    private Sprite playerPaddle = new Sprite(
-        new Vector(0, 375), 
-        new Vector(0, 0), 
-        "Paddle"
-    );
+    private Paddle playerPaddle = new Paddle(new Vector(0, 375));
 
     public Playground(int n) {
         super();
@@ -25,13 +23,14 @@ public class Playground extends JPanel {
                 rand.nextDouble() * 2,
                 rand.nextDouble() * 2 
             );
-            sprites.add(new Sprite(pos, vel, "ball"));
+            sprites.add(new Sprite(pos, vel));
         }
 
         this.addMouseMotionListener(new MouseMotionListener() {
             public void mouseMoved(MouseEvent e) {
                 playerPaddle.setPos(new Vector(e.getX(), 375));
             }
+            
             public void mouseDragged(MouseEvent e) {
                 // do something else? could be a different mechanic
             }
@@ -78,7 +77,7 @@ public class Playground extends JPanel {
      */
     public void animate() {
         for (Sprite s : sprites) {
-            s.move();
+            s.update();
         }
     }
         
@@ -87,19 +86,23 @@ public class Playground extends JPanel {
      */
     public void doPhysics() {
         for (Sprite s : sprites) {
-            if (s.getPos().getX() < BALL_RADIUS) {
-                s.getPos().setX(BALL_RADIUS);
-                s.getVel().scaleX(-1);
-            } else if (s.getPos().getX() > 400 - BALL_RADIUS) {
-                s.getPos().setX(400.0 - BALL_RADIUS);
-                s.getVel().scaleX(-1);
+            Vector sPos = s.getPos();
+            Vector sVel = s.getVel();
+
+            if (sPos.getX() < BALL_RADIUS) {
+                sPos.setX(BALL_RADIUS);
+                sVel.scaleX(-1);
+            } else if (sPos.getX() > 400 - BALL_RADIUS) {
+                sPos.setX(400.0 - BALL_RADIUS);
+                sVel.scaleX(-1);
             }
-            if (s.getPos().getY() < BALL_RADIUS) {
-                s.getPos().setY(BALL_RADIUS);
-                s.getVel().scaleY(-1);
-            } else if (s.getPos().getY() > 400 - BALL_RADIUS) {
-                s.getPos().setY(400.0 - BALL_RADIUS);
-                s.getVel().scaleY(-1);
+
+            if (sPos.getY() < BALL_RADIUS) {
+                sPos.setY(BALL_RADIUS);
+                sVel.scaleY(-1);
+            } else if (sPos.getY() > 400 - BALL_RADIUS) {
+                sPos.setY(400.0 - BALL_RADIUS);
+                sVel.scaleY(-1);
             }
         }
     }
