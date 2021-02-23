@@ -3,12 +3,12 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.util.concurrent.*;
 
-public class SimpleRender implements ActionListener, Runnable {
+public class SimpleRender implements Runnable {
     private static final int FPS = 60;
     private JFrame frame = new JFrame();
     private JPanel panel = new JPanel();
     private JButton button = new JButton("Animate");
-    private Playground playground = new Playground(20);
+    private Playground playground = new Playground();
 
     public SimpleRender() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -26,15 +26,6 @@ public class SimpleRender implements ActionListener, Runnable {
         playground.repaint();
 
         frame.setVisible(true);
-    }
-
-    public void actionPerformed(ActionEvent e) { 
-        // String cmd = e.getActionCommand();
-        // //System.out.println(cmd);
-        // if (cmd == "Animate") {
-        //     playground.animate();
-        //     playground.doPhysics();
-        // }
     }
 
     /**

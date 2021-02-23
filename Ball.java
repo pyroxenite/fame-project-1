@@ -1,25 +1,26 @@
-import javax.swing.*;
-import java.util.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class Ball extends Sprite {
+    private Vector vel;
     private double radius = 10;
     private Color color = Color.red;
 
     public Ball(Vector pos, Vector vel) {
-        super(pos, vel);
+        super(pos);
+        this.vel = vel;
     }
 
-    public void setRadius(double radius) {
-        this.radius = radius;
-    }
+    public Vector getVel() { return vel; }
+
+    public void setVel(Vector vel) { this.vel = vel; }
 
     public double getRadius() { return radius; }
 
-    public void setColor(Color color) {
-        this.color = color;
-    }
+    public void setRadius(double radius) { this.radius = radius; }
+
+    public Color getColor() { return color; }
+
+    public void setColor(Color color) { this.color = color; }
 
     public void update() {
         getPos().add(getVel());
@@ -34,5 +35,14 @@ public class Ball extends Sprite {
             (int) (2 * radius),
             (int) (2 * radius)
         );
+    }
+
+    public static void main(String[] args) {
+        Vector pos = new Vector(30, 30);
+        Vector vel = new Vector(2, 2);
+        Ball b = new Ball(pos, vel);
+        System.out.println(b);
+        b.update();
+        System.out.println(b);
     }
 }
