@@ -10,7 +10,7 @@ public class Playground extends JPanel {
 
     private transient ArrayList<Ball> balls = new ArrayList<>();
     private transient ArrayList<Brick> bricks = new ArrayList<>();
-    private transient Paddle playerPaddle = new Paddle(new Vector(0, 375));
+    private transient Paddle playerPaddle;
 
     class PowerupType {
         static final int NONE = 0;
@@ -22,19 +22,24 @@ public class Playground extends JPanel {
     public Playground() {
         super();
 
-        Vector pos = new Vector(
-            200,
-            365
-        );
+        Vector pos = new Vector(200, 365);
         Vector vel = new Vector(
             (rand.nextDouble() - 0.5) * 4,
             - rand.nextDouble() * 4 
         );
         balls.add(new Ball(pos, vel));
 
+        Vector pos2 = new Vector(
+            rand.nextDouble() * 400,
+            rand.nextDouble() * 200
+        );
+        bricks.add(new Brick(pos2));
+
+        playerPaddle = new Paddle(new Vector(0, 375));
+        playerPaddle.setColor(new Color(150, 150, 150));
+
         this.addMouseMotionListener(new MouseMotionListener() {
             public void mouseMoved(MouseEvent e) {
-                // playerPaddle.setPos(new Vector(e.getX(), 375));
                 playerPaddle.getPos().setX(e.getX());
             }
             
@@ -42,6 +47,8 @@ public class Playground extends JPanel {
                 // do something else? could be a different mechanic
             }
         });
+
+
     }
 
     /**
@@ -51,15 +58,20 @@ public class Playground extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
 
-        // turns on antialising
+        // turn on antialising
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHints(new RenderingHints(
             RenderingHints.KEY_ANTIALIASING,
             RenderingHints.VALUE_ANTIALIAS_ON
         ));
 
-        //clear panel
-        g.clearRect(0, 0, 400, 400);
+        // clear panel
+        g.setColor(new Color(255, 255, 255));
+        g.fillRect(0, 0, 400, 400);
+
+        for (Brick b : bricks) {
+            b.draw(g);
+        }
 
         for (Ball b : balls) {
             b.draw(g);
@@ -75,6 +87,10 @@ public class Playground extends JPanel {
      */
     public void animate() {
         for (Ball b : balls) {
+            b.update();
+        }
+
+        for (Brick b : bricks) {
             b.update();
         }
     }

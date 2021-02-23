@@ -6,7 +6,6 @@ import java.util.concurrent.*;
 public class SimpleRender implements Runnable {
     private static final int FPS = 60;
     private JFrame frame = new JFrame();
-    private JPanel panel = new JPanel();
     private JButton button = new JButton("Animate");
     private Playground playground = new Playground();
 
@@ -15,15 +14,10 @@ public class SimpleRender implements Runnable {
         frame.setSize(400, 428);
         frame.setLayout(null);
 
-        panel.setBounds(0, 0, 400, 400);
-        panel.setBackground(Color.white);
-        frame.add(panel);
-
         playground.setBounds(0, 0, 400, 400);
-        playground.setBackground(Color.white);
         frame.add(playground);
 
-        playground.repaint();
+        //playground.repaint();
 
         frame.setVisible(true);
     }
