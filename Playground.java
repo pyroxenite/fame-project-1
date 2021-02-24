@@ -19,50 +19,19 @@ public class Playground extends JPanel {
         static final int BLAZING_BALL = 3; // makes balls go through bricks without colliding?
     }
 
-    private boolean intersects(Ball ball, Rectangle rect) {
-        Vector cDist = new Vector();
-        Vector cPos = ball.getPos();
-        Vector rPos = rect.getPos();
-
-        cDist.setX(Math.abs(cPos.getX() - rPos.getX()));
-        cDist.setY(Math.abs(cPos.getY() - rPos.getY()));
-    
-        if (cDist.getX() > (rect.getWidth()/2 + ball.getRadius())) { return false; }
-        if (cDist.getY() > (rect.getHeight()/2 + ball.getRadius())) { return false; }
-    
-        if (cDist.getX() <= (rect.getWidth()/2)) { return true; } 
-        if (cDist.getY() <= (rect.getHeight()/2)) { return true; }
-    
-        double cornerDistance_sq = (int)(cDist.getX() - rect.getWidth()/2)^2 +
-                                   (int)(cDist.getY() - rect.getHeight()/2)^2;
-    
-        return (cornerDistance_sq <= ((int)ball.getRadius() ^ 2));
-    }
-
     public Playground() {
         super();
 
         Vector pos = new Vector(200, 365);
-        // Vector vel = new Vector(
-        //     (rand.nextDouble() - 0.5) * 4,
-        //     - rand.nextDouble() * 4 
-        // );
         Vector vel = new Vector(
             (rand.nextDouble() - 0.5) * 4,
             -5
         );
         balls.add(new Ball(pos, vel));
 
-
         for (int i = 0; i < 10; i++) {
             bricks.add(new Brick(new Vector(i * 40, 50)));    
         }
-
-        // Vector pos2 = new Vector(
-        //     rand.nextDouble() * 400,
-        //     rand.nextDouble() * 200
-        // );
-        // bricks.add(new Brick(pos2));
 
         playerPaddle = new Paddle(new Vector(0, 375));
         playerPaddle.setColor(new Color(150, 150, 150));
@@ -76,8 +45,6 @@ public class Playground extends JPanel {
                 // do something else? could be a different mechanic
             }
         });
-
-
     }
 
     /**
@@ -86,7 +53,6 @@ public class Playground extends JPanel {
      */
     @Override
     public void paintComponent(Graphics g) {
-
         // turn on antialising
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHints(new RenderingHints(
@@ -117,11 +83,32 @@ public class Playground extends JPanel {
     public void animate() {
         for (Ball b : balls) {
             b.update();
+            b.getVel().setMag(5);
         }
 
         for (Brick b : bricks) {
             b.update();
         }
+    }
+
+    private boolean intersects(Ball ball, Rectangle rect) {
+        Vector cDist = new Vector();
+        Vector cPos = ball.getPos();
+        Vector rPos = rect.getPos();
+
+        cDist.setX(Math.abs(cPos.getX() - rPos.getX()));
+        cDist.setY(Math.abs(cPos.getY() - rPos.getY()));
+    
+        if (cDist.getX() > (rect.getWidth()/2 + ball.getRadius())) { return false; }
+        if (cDist.getY() > (rect.getHeight()/2 + ball.getRadius())) { return false; }
+    
+        if (cDist.getX() <= (rect.getWidth()/2)) { return true; } 
+        if (cDist.getY() <= (rect.getHeight()/2)) { return true; }
+    
+        double cornerDistance_sq = (int)(cDist.getX() - rect.getWidth()/2)^2 +
+                                   (int)(cDist.getY() - rect.getHeight()/2)^2;
+    
+        return (cornerDistance_sq <= ((int)ball.getRadius() ^ 2));
     }
         
     /**
@@ -140,15 +127,12 @@ public class Playground extends JPanel {
                 pos.setX(400.0 - r);
                 vel.scaleX(-1);
             }
-
             if (pos.getY() < r) {
                 pos.setY(r);
                 vel.scaleY(-1);
+            } else if (pos.getY() > 400 + r) {
+                // end game (or decrement lives)
             }
-            // } else if (pos.getY() > 400 - r) {
-            //     pos.setY(400.0 - r);
-            //     vel.scaleY(-1);
-            // }
 
             ArrayList<Brick> garbage = new ArrayList<>();
             for (Brick brick : bricks) {
@@ -173,6 +157,9 @@ public class Playground extends JPanel {
 
             if (intersects(b, playerPaddle)) {
                 vel.scaleY(-1);
+                double horiDist = b.getPos().getX() - playerPaddle.getPos().getX();
+                double hitLocation = horiDist/playerPaddle.getWidth()*2; // -1 -> leftmost, 1 -> rightmost
+                vel.add(new Vector(hitLocation*1.5, 0));
             }
         }
     }

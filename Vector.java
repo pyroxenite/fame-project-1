@@ -77,6 +77,10 @@ public class Vector {
         y = oldX * Math.sin(angle) - y * Math.cos(angle);
     }
 
+    public void setMag(double mag) {
+        this.scale(mag/this.mag());
+    } 
+
     ////// Tests //////
 
     public static void main(String [] args) {
