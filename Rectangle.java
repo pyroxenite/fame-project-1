@@ -1,30 +1,30 @@
 import java.awt.*;
 
-public class Rectangle extends Sprite {
+public class Rectangle implements Sprite {
+    private Vector pos;
     private double width = 100;
     private double height = 100;
     private Color color = Color.black;
 
     public Rectangle(Vector pos, double width, double height) {
-        super(pos);
+        this.pos = pos;
         this.width = width;
         this.height = height;
     }
 
-    public void setWidth(double width) { this.width = width; }
-
-    public void setHeight(double height) { this.height = height; }
+    public Vector getPos() { return pos; }
+    public void setPos(Vector pos) { this.pos = pos; }
 
     public double getWidth() { return width; }
+    public void setWidth(double width) { this.width = width; }
 
     public double getHeight() { return height; }
+    public void setHeight(double height) { this.height = height; }
 
-    public void setColor(Color color) {
-        this.color = color;
-    }
+    public Color getColor() { return this.color; }
+    public void setColor(Color color) { this.color = color; }
 
     public void draw(Graphics g) {
-        Vector pos = this.getPos();
         g.setColor(color);
         g.fillRect(
             (int) (pos.getX() - width/2),
@@ -33,5 +33,8 @@ public class Rectangle extends Sprite {
             (int) height
         );
     }
-}
 
+    public void update() {
+        // override in subclasses if needed
+    }
+}

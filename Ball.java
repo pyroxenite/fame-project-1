@@ -1,25 +1,26 @@
 import java.awt.*;
 
-public class Ball extends Sprite {
+public class Ball implements Sprite {
+    private Vector pos;
     private Vector vel;
     private double radius = 10;
     private Color color = Color.red;
 
     public Ball(Vector pos, Vector vel) {
-        super(pos);
+        this.pos = pos;
         this.vel = vel;
     }
 
-    public Vector getVel() { return vel; }
+    public Vector getPos() { return pos; }
+    public void setPos(Vector pos) { this.pos = pos; }
 
+    public Vector getVel() { return vel; }
     public void setVel(Vector vel) { this.vel = vel; }
 
     public double getRadius() { return radius; }
-
     public void setRadius(double radius) { this.radius = radius; }
 
     public Color getColor() { return color; }
-
     public void setColor(Color color) { this.color = color; }
 
     public void update() {
@@ -27,7 +28,6 @@ public class Ball extends Sprite {
     }
 
     public void draw(Graphics g) {
-        Vector pos = this.getPos();
         g.setColor(color);
         g.fillOval(
             (int) (pos.getX() - radius), 
@@ -35,6 +35,10 @@ public class Ball extends Sprite {
             (int) (2 * radius),
             (int) (2 * radius)
         );
+    }
+
+    public String toString() {
+        return "Ball: {\n    pos: " + this.pos + ",\n    vel: " + this.vel + "\n}";
     }
 
     public static void main(String[] args) {
