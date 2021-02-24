@@ -23,3 +23,9 @@ Sprite.class: Sprite.java Vector.class
 
 Vector.class: Vector.java
 	javac Vector.java
+
+clean: 
+	rm *.class
+
+run: SimpleRender.class
+	java SimpleRender
