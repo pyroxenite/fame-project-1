@@ -134,6 +134,7 @@ public class Playground extends JPanel {
             pos.setX(400.0 - r);
             vel.scaleX(-1);
         }
+        
         if (pos.getY() < r) {
             pos.setY(r);
             vel.scaleY(-1);
@@ -145,25 +146,35 @@ public class Playground extends JPanel {
         Vector vel = b.getVel();
 
         ArrayList<Brick> garbage = new ArrayList<>();
+
+        Boolean hBounce = false;
+        Boolean vBounce = false;
+
         for (Brick brick : bricks) {
             if (intersects(b, brick)) {
                 Vector bPos = brick.getPos();
-                double bX = pos.getX(), bY = pos.getY();
+                double bX = bPos.getX(), bY = bPos.getY();
                 double bWidth = brick.getWidth(), bHeight = brick.getHeight();
 
-                //hit on top or bottom of brick
-                if (pos.getX() > (bX - bWidth / 2) && pos.getX() < (bX + bWidth / 2)) 
-                    vel.scaleY(-1);
-                else if (pos.getY() > (bY - bHeight / 2) && pos.getY() < (bY + bHeight / 2)) //hit on side of brick
-                    vel.scaleX(-1);
+                if (pos.getY() > (bY - bHeight / 2) && pos.getY() < (bY + bHeight / 2))
+                    hBounce = true;
+                else
+                    vBounce = true;
+
+                // if (pos.getX() > (bX - bWidth / 2) && pos.getX() < (bX + bWidth / 2)) //hit on top or bottom of brick
+                //     vBounce = true;
+                // else if (pos.getY() > (bY - bHeight / 2) && pos.getY() < (bY + bHeight / 2)) //hit on side of brick
+                //     hBounce = true; 
 
                 garbage.add(brick);
             }
         }
 
-        for (Brick brick : garbage) {
+        for (Brick brick : garbage)
             bricks.remove(brick);
-        }
+
+        if (vBounce) vel.scaleY(-1);
+        if (hBounce) vel.scaleX(-1);
     }
 
     public void collideWithPaddle(Ball b) {
@@ -180,7 +191,7 @@ public class Playground extends JPanel {
 
     public void addBrickRow(double height) {
         for (int i = -4; i <= 4; i++) {
-            bricks.add(new Brick(new Vector(200 + i * 50, height)));    
+            bricks.add(new Brick(new Vector(200 + i * 45, height)));    
         }
     }
 }
