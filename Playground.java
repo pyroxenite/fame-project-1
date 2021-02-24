@@ -29,12 +29,12 @@ public class Playground extends JPanel {
         );
         balls.add(new Ball(pos, vel));
 
-        for (int i = 0; i < 10; i++) {
-            bricks.add(new Brick(new Vector(i * 40, 50)));    
-        }
-
         playerPaddle = new Paddle(new Vector(0, 375));
         playerPaddle.setColor(new Color(150, 150, 150));
+
+        addBrickRow(30);
+        addBrickRow(55);
+        addBrickRow(80);
 
         this.addMouseMotionListener(new MouseMotionListener() {
             public void mouseMoved(MouseEvent e) {
@@ -112,55 +112,75 @@ public class Playground extends JPanel {
     }
         
     /**
-     * Checks for collisions with walls and bounces balls.
+     * Checks for collisions bounces balls.
      */
     public void doPhysics() {
-        for (Ball b : balls) {
-            Vector pos = b.getPos();
-            Vector vel = b.getVel();
-            double r = b.getRadius();
+        for (Ball b : balls) {            
+            collideWithWalls(b);
+            collideWithBricks(b);
+            collideWithPaddle(b);
+        }
+    }
 
-            if (pos.getX() < r) {
-                pos.setX(r);
-                vel.scaleX(-1);
-            } else if (pos.getX() > 400 - r) {
-                pos.setX(400.0 - r);
-                vel.scaleX(-1);
+    public void collideWithWalls(Ball b) {
+        Vector pos = b.getPos();
+        Vector vel = b.getVel();
+        double r = b.getRadius();
+
+        if (pos.getX() < r) {
+            pos.setX(r);
+            vel.scaleX(-1);
+        } else if (pos.getX() > 400 - r) {
+            pos.setX(400.0 - r);
+            vel.scaleX(-1);
+        }
+        if (pos.getY() < r) {
+            pos.setY(r);
+            vel.scaleY(-1);
+        }
+    }
+
+    public void collideWithBricks(Ball b) {
+        Vector pos = b.getPos();
+        Vector vel = b.getVel();
+
+        ArrayList<Brick> garbage = new ArrayList<>();
+        for (Brick brick : bricks) {
+            if (intersects(b, brick)) {
+                Vector bPos = brick.getPos();
+                double bX = pos.getX(), bY = pos.getY();
+                double bWidth = brick.getWidth(), bHeight = brick.getHeight();
+
+                //hit on top or bottom of brick
+                if (pos.getX() > (bX - bWidth / 2) && pos.getX() < (bX + bWidth / 2)) 
+                    vel.scaleY(-1);
+                else if (pos.getY() > (bY - bHeight / 2) && pos.getY() < (bY + bHeight / 2)) //hit on side of brick
+                    vel.scaleX(-1);
+
+                garbage.add(brick);
             }
-            if (pos.getY() < r) {
-                pos.setY(r);
-                vel.scaleY(-1);
-            } else if (pos.getY() > 400 + r) {
-                // end game (or decrement lives)
-            }
+        }
 
-            ArrayList<Brick> garbage = new ArrayList<>();
-            for (Brick brick : bricks) {
-                if (intersects(b, brick)) {
-                    Vector bPos = brick.getPos();
-                    double bX = pos.getX(), bY = pos.getY();
-                    double bWidth = brick.getWidth(), bHeight = brick.getHeight();
+        for (Brick brick : garbage) {
+            bricks.remove(brick);
+        }
+    }
 
-                    //hit on top or bottom of brick
-                    if (pos.getX() > (bX - bWidth / 2) && pos.getX() < (bX + bWidth / 2)) 
-                        vel.scaleY(-1);
-                    else if (pos.getY() > (bY - bHeight / 2) && pos.getY() < (bY + bHeight / 2)) //hit on side of brick
-                        vel.scaleX(-1);
+    public void collideWithPaddle(Ball b) {
+        Vector pos = b.getPos();
+        Vector vel = b.getVel();
 
-                    garbage.add(brick);
-                }
-            }
+        if (intersects(b, playerPaddle)) {
+            vel.scaleY(-1);
+            double horiDist = pos.getX() - playerPaddle.getPos().getX();
+            double hitLocation = horiDist/playerPaddle.getWidth()*2; // -1 -> leftmost, 1 -> rightmost
+            vel.add(new Vector(hitLocation*1.5, 0)); // alters ball direction
+        }
+    }
 
-            for (Brick brick : garbage) {
-                bricks.remove(brick);
-            }
-
-            if (intersects(b, playerPaddle)) {
-                vel.scaleY(-1);
-                double horiDist = b.getPos().getX() - playerPaddle.getPos().getX();
-                double hitLocation = horiDist/playerPaddle.getWidth()*2; // -1 -> leftmost, 1 -> rightmost
-                vel.add(new Vector(hitLocation*1.5, 0));
-            }
+    public void addBrickRow(double height) {
+        for (int i = -4; i <= 4; i++) {
+            bricks.add(new Brick(new Vector(200 + i * 50, height)));    
         }
     }
 }
