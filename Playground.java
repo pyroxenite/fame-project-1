@@ -19,21 +19,50 @@ public class Playground extends JPanel {
         static final int BLAZING_BALL = 3; // makes balls go through bricks without colliding?
     }
 
+    private boolean intersects(Ball ball, Rectangle rect) {
+        Vector cDist = new Vector();
+        Vector cPos = ball.getPos();
+        Vector rPos = rect.getPos();
+
+        cDist.setX(Math.abs(cPos.getX() - rPos.getX()));
+        cDist.setY(Math.abs(cPos.getY() - rPos.getY()));
+    
+        if (cDist.getX() > (rect.getWidth()/2 + ball.getRadius())) { return false; }
+        if (cDist.getY() > (rect.getHeight()/2 + ball.getRadius())) { return false; }
+    
+        if (cDist.getX() <= (rect.getWidth()/2)) { return true; } 
+        if (cDist.getY() <= (rect.getHeight()/2)) { return true; }
+    
+        double cornerDistance_sq = (int)(cDist.getX() - rect.getWidth()/2)^2 +
+                                   (int)(cDist.getY() - rect.getHeight()/2)^2;
+    
+        return (cornerDistance_sq <= ((int)ball.getRadius() ^ 2));
+    }
+
     public Playground() {
         super();
 
         Vector pos = new Vector(200, 365);
+        // Vector vel = new Vector(
+        //     (rand.nextDouble() - 0.5) * 4,
+        //     - rand.nextDouble() * 4 
+        // );
         Vector vel = new Vector(
             (rand.nextDouble() - 0.5) * 4,
-            - rand.nextDouble() * 4 
+            -5
         );
         balls.add(new Ball(pos, vel));
 
-        Vector pos2 = new Vector(
-            rand.nextDouble() * 400,
-            rand.nextDouble() * 200
-        );
-        bricks.add(new Brick(pos2));
+
+        for (int i = 0; i < 10; i++) {
+            bricks.add(new Brick(new Vector(i * 40, 50)));    
+        }
+
+        // Vector pos2 = new Vector(
+        //     rand.nextDouble() * 400,
+        //     rand.nextDouble() * 200
+        // );
+        // bricks.add(new Brick(pos2));
 
         playerPaddle = new Paddle(new Vector(0, 375));
         playerPaddle.setColor(new Color(150, 150, 150));
@@ -120,6 +149,31 @@ public class Playground extends JPanel {
             //     pos.setY(400.0 - r);
             //     vel.scaleY(-1);
             // }
+
+            ArrayList<Brick> garbage = new ArrayList<>();
+            for (Brick brick : bricks) {
+                if (intersects(b, brick)) {
+                    Vector bPos = brick.getPos();
+                    double bX = pos.getX(), bY = pos.getY();
+                    double bWidth = brick.getWidth(), bHeight = brick.getHeight();
+
+                    //hit on top or bottom of brick
+                    if (pos.getX() > (bX - bWidth / 2) && pos.getX() < (bX + bWidth / 2)) 
+                        vel.scaleY(-1);
+                    else if (pos.getY() > (bY - bHeight / 2) && pos.getY() < (bY + bHeight / 2)) //hit on side of brick
+                        vel.scaleX(-1);
+
+                    garbage.add(brick);
+                }
+            }
+
+            for (Brick brick : garbage) {
+                bricks.remove(brick);
+            }
+
+            if (intersects(b, playerPaddle)) {
+                vel.scaleY(-1);
+            }
         }
     }
 }
