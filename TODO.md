@@ -1,11 +1,16 @@
 # Remaining tasks
- - Handle collisions between balls and rectangles
- - Generate bricks, draw bricks, move bricks down
- - Display score, maybe number of lives left
- - New ball or game over when ball is missed
- - Powerups
-    - Make sprite subclass
-    - Handle contact with paddle (new ball, etc.)
-    - Handle miss
- - ?
+ - Game logic
+   - Game states
+      - Count down
+      - Game on
+      - Game over
+   - Score (highscore ?), lives
+   - Check if at least one ball is above ground
+   - Check if all bricks are aboce ground
+   - Show score, lives
+ - Fix collision bugs
+   - Ball getting stuck in paddle
+   - Corner cases
+ - Generate random brick paterns
+ - ...
  
