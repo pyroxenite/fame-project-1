@@ -10,14 +10,8 @@ public class Playground extends JPanel {
 
     private transient ArrayList<Ball> balls = new ArrayList<>();
     private transient ArrayList<Brick> bricks = new ArrayList<>();
+    private transient ArrayList<Powerup> powerups = new ArrayList<>();
     private transient Paddle playerPaddle;
-
-    class PowerupType {
-        static final int NONE = 0;
-        static final int EXTRA_BALL = 1;
-        static final int FREEZE_BRICKS = 2; // bricks stop coming down
-        static final int BLAZING_BALL = 3; // makes balls go through bricks without colliding?
-    }
 
     public Playground() {
         super();
@@ -31,6 +25,8 @@ public class Playground extends JPanel {
 
         playerPaddle = new Paddle(new Vector(0, 375));
         playerPaddle.setColor(new Color(150, 150, 150));
+
+        powerups.add(new Powerup(new Vector(200, 100), 1));
 
         addBrickRow(30);
         addBrickRow(55);
@@ -47,6 +43,10 @@ public class Playground extends JPanel {
         });
     }
 
+    public ArrayList<Ball> getBalls() {
+        return balls;
+    }
+
     /**
      * Draws the Playground object on screen.
      * @param g current drawing context
@@ -54,8 +54,8 @@ public class Playground extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         // turn on antialising
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHints(new RenderingHints(
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHints(new RenderingHints(
             RenderingHints.KEY_ANTIALIASING,
             RenderingHints.VALUE_ANTIALIAS_ON
         ));
@@ -64,13 +64,14 @@ public class Playground extends JPanel {
         g.setColor(new Color(255, 255, 255));
         g.fillRect(0, 0, 400, 400);
 
-        for (Brick b : bricks) {
+        for (Brick b : bricks)
             b.draw(g);
-        }
 
-        for (Ball b : balls) {
+        for (Powerup p : powerups)
+            p.draw(g);
+
+        for (Ball b : balls)
             b.draw(g);
-        }
 
         playerPaddle.draw(g);
 
@@ -83,24 +84,28 @@ public class Playground extends JPanel {
     public void animate() {
         for (Ball b : balls) {
             b.update();
-            b.getVel().setMag(5);
+            b.getVel().setMag(5); // keeps the ball from going too fast or too slow
         }
 
         for (Brick b : bricks) {
             b.update();
         }
+
+        for (Powerup p : powerups) {
+            p.update();
+        }
     }
 
-    private boolean intersects(Ball ball, Rectangle rect) {
+    private boolean intersects(Circle circ, Rectangle rect) {
         Vector cDist = new Vector();
-        Vector cPos = ball.getPos();
+        Vector cPos = circ.getPos();
         Vector rPos = rect.getPos();
 
         cDist.setX(Math.abs(cPos.getX() - rPos.getX()));
         cDist.setY(Math.abs(cPos.getY() - rPos.getY()));
     
-        if (cDist.getX() > (rect.getWidth()/2 + ball.getRadius())) { return false; }
-        if (cDist.getY() > (rect.getHeight()/2 + ball.getRadius())) { return false; }
+        if (cDist.getX() > (rect.getWidth()/2 + circ.getRadius())) { return false; }
+        if (cDist.getY() > (rect.getHeight()/2 + circ.getRadius())) { return false; }
     
         if (cDist.getX() <= (rect.getWidth()/2)) { return true; } 
         if (cDist.getY() <= (rect.getHeight()/2)) { return true; }
@@ -108,7 +113,7 @@ public class Playground extends JPanel {
         double cornerDistance_sq = (int)(cDist.getX() - rect.getWidth()/2)^2 +
                                    (int)(cDist.getY() - rect.getHeight()/2)^2;
     
-        return (cornerDistance_sq <= ((int)ball.getRadius() ^ 2));
+        return (cornerDistance_sq <= ((int)circ.getRadius() ^ 2));
     }
         
     /**
@@ -119,6 +124,10 @@ public class Playground extends JPanel {
             collideWithWalls(b);
             collideWithBricks(b);
             collideWithPaddle(b);
+        }
+
+        for (Powerup p : powerups) {
+            collideWithPaddle(p);
         }
     }
 
@@ -134,7 +143,7 @@ public class Playground extends JPanel {
             pos.setX(400.0 - r);
             vel.scaleX(-1);
         }
-        
+
         if (pos.getY() < r) {
             pos.setY(r);
             vel.scaleY(-1);
@@ -156,10 +165,10 @@ public class Playground extends JPanel {
                 double bX = bPos.getX(), bY = bPos.getY();
                 double bWidth = brick.getWidth(), bHeight = brick.getHeight();
 
-                if (pos.getY() > (bY - bHeight / 2) && pos.getY() < (bY + bHeight / 2))
-                    hBounce = true;
-                else
+                if (pos.getX() > (bX - bWidth / 2) && pos.getX() < (bX + bWidth / 2))
                     vBounce = true;
+                else 
+                    hBounce = true;
 
                 // if (pos.getX() > (bX - bWidth / 2) && pos.getX() < (bX + bWidth / 2)) //hit on top or bottom of brick
                 //     vBounce = true;
@@ -186,6 +195,13 @@ public class Playground extends JPanel {
             double horiDist = pos.getX() - playerPaddle.getPos().getX();
             double hitLocation = horiDist/playerPaddle.getWidth()*2; // -1 -> leftmost, 1 -> rightmost
             vel.add(new Vector(hitLocation*1.5, 0)); // alters ball direction
+        }
+    }
+
+    public void collideWithPaddle(Powerup p) {
+        if (intersects(p, playerPaddle)) {
+            p.activate(this);
+            powerups.remove(p);
         }
     }
 
