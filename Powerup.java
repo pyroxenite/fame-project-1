@@ -41,7 +41,7 @@ public class Powerup extends Circle {
     }
 
     public void activate(Playground p) {
-        System.out.println(type);
+        System.out.println("Powerup type: " + type);
         switch (type) {
             case 1: // extra ball powerup
                 // Ball newBall = new Ball(

@@ -6,16 +6,18 @@ import java.util.concurrent.*;
 public class SimpleRender implements Runnable {
     private static final int FPS = 60;
     private JFrame frame = new JFrame();
-    private JButton button = new JButton("Animate");
-    private Playground playground = new Playground();
+    private JLabel score = new JLabel("Score: 0");
+    private Playground playground = new Playground(score);
 
     public SimpleRender() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 428);
+        frame.setSize(400, 450);
         frame.setLayout(null);
 
-        playground.setBounds(0, 0, 400, 400);
+        playground.setBounds(0, 25, 400, 400);
+        score.setBounds(0, 0, 100, 25);
         frame.add(playground);
+        frame.add(score);
 
         //playground.repaint();
 
