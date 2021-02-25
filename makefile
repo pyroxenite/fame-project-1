@@ -3,7 +3,7 @@ all: SimpleRender.class
 SimpleRender.class: SimpleRender.java Playground.class
 	javac SimpleRender.java
 
-Playground.class: Playground.java Vector.class Sprite.class Ball.class Rectangle.class Paddle.class Brick.class
+Playground.class: Playground.java Vector.class Ball.class Paddle.class Brick.class Powerup.class
 	javac Playground.java
 
 Paddle.class: Paddle.java Rectangle.class Vector.class
@@ -15,8 +15,14 @@ Brick.class: Brick.java Rectangle.class Vector.class
 Rectangle.class: Rectangle.java Sprite.class Vector.class
 	javac Rectangle.java
 
-Ball.class: Ball.java Sprite.class Vector.class
+Ball.class: Ball.java Circle.class Vector.class
 	javac Ball.java
+
+Powerup.class: Powerup.java Circle.class Vector.class
+	javac Powerup.java
+
+Circle.class: Circle.java Sprite.class Vector.class
+	javac Circle.java
 
 Sprite.class: Sprite.java Vector.class
 	javac Sprite.java

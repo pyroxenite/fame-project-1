@@ -1,44 +1,13 @@
 import java.awt.*;
 
-public class Ball implements Sprite {
-    private Vector pos;
-    private Vector vel;
-    private double radius = 10;
-    private Color color = Color.red;
-
+public class Ball extends Circle {
     public Ball(Vector pos, Vector vel) {
-        this.pos = pos;
-        this.vel = vel;
-    }
-
-    public Vector getPos() { return pos; }
-    public void setPos(Vector pos) { this.pos = pos; }
-
-    public Vector getVel() { return vel; }
-    public void setVel(Vector vel) { this.vel = vel; }
-
-    public double getRadius() { return radius; }
-    public void setRadius(double radius) { this.radius = radius; }
-
-    public Color getColor() { return color; }
-    public void setColor(Color color) { this.color = color; }
-
-    public void update() {
-        getPos().add(getVel());
-    }
-
-    public void draw(Graphics g) {
-        g.setColor(color);
-        g.fillOval(
-            (int) (pos.getX() - radius), 
-            (int) (pos.getY() - radius), 
-            (int) (2 * radius),
-            (int) (2 * radius)
-        );
+        super(pos, vel, 10);
+        setColor(Color.red);
     }
 
     public String toString() {
-        return "Ball: {\n    pos: " + this.pos + ",\n    vel: " + this.vel + "\n}";
+        return "Ball: {\n    pos: " + this.getPos() + ",\n    vel: " + this.getVel() + "\n}";
     }
 
     public static void main(String[] args) {
