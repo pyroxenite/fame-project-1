@@ -5,8 +5,9 @@ public class Powerup extends Circle {
 
     static final int NONE = 0;
     static final int EXTRA_BALL = 1;
-    static final int FREEZE_BRICKS = 2; // bricks stop coming down
-    static final int BLAZING_BALL = 3; // makes balls go through bricks without colliding?
+    static final int EXTRA_BALLS = 2;
+    static final int FREEZE_BRICKS = 3; // bricks stop coming down
+
 
     public Powerup(Vector pos, int type) {
         super(pos, new Vector(0, 1), 5);
@@ -18,14 +19,12 @@ public class Powerup extends Circle {
 
     @Override
     public void draw(Graphics g) {
-        if (type == 0) return;
-
         switch (type) {
-            case 1: // extra ball powerup
+            case EXTRA_BALL, EXTRA_BALLS:
                 g.setColor(new Color(230, 230, 0)); break;
-            case 2: // freeze powerup
+            case FREEZE_BRICKS:
                 g.setColor(new Color(0, 200, 255)); break;
-            case 3: // blaze powerup
+            case 4: // ??
                 g.setColor(new Color(230, 100, 0)); break;
             default:
                 return;
@@ -41,23 +40,28 @@ public class Powerup extends Circle {
     }
 
     public void activate(Playground p) {
-        System.out.println("Powerup type: " + type);
+        Ball newBall;
         switch (type) {
             case 1: // extra ball powerup
-                // Ball newBall = new Ball(
-                //     p.getBalls().get(0).getPos().copy(),
-                //     p.getBalls().get(0).getVel().copy()
-                // ); 
-                Ball newBall = new Ball(
-                    new Vector(200, 200),
-                    new Vector(1, -1)
+                newBall = new Ball(
+                    p.getBalls().get(0).getPos().copy(),
+                    p.getBalls().get(0).getVel().copy()
                 ); 
-                //newBall.getVel().rotate(Math.PI / 6);
+                newBall.getVel().rotate(Math.PI / 6);
                 p.getBalls().add(newBall);
                 break;
-            case 2: // freeze powerup
+            case 2: // extra balls powerup
+                for (int i=0; i<3; i++) {
+                    newBall = new Ball(
+                        p.getBalls().get(0).getPos().copy(),
+                        p.getBalls().get(0).getVel().copy()
+                    ); 
+                    newBall.getVel().rotate(Math.PI / 20 * (i+1));
+                    p.getBalls().add(newBall);
+                }
                 break;
-            case 3: // blaze powerup
+            case 3: // freeze powerup
+                p.setFreezeFramesLeft(60 * 5); // 5 seconds
                 break;
             default:
                 return;

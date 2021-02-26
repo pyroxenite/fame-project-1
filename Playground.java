@@ -12,8 +12,11 @@ public class Playground extends JPanel {
     private transient ArrayList<Brick> bricks = new ArrayList<>();
     private transient ArrayList<Powerup> powerups = new ArrayList<>();
     private transient Paddle playerPaddle;
+
     private JLabel score;
     private int scoreVal = 0;
+    private double brickSpeed = 0.1;
+    private int freezeFramesLeft = 0;
 
     public Playground(JLabel sScore) {
         super();
@@ -30,7 +33,7 @@ public class Playground extends JPanel {
         playerPaddle = new Paddle(new Vector(0, 375));
         playerPaddle.setColor(new Color(150, 150, 150));
 
-        // powerups.add(new Powerup(new Vector(200, 100), 1));
+        powerups.add(new Powerup(new Vector(200, 100), 2));
 
         addBrickRow(30);
         addBrickRow(55);
@@ -47,9 +50,8 @@ public class Playground extends JPanel {
         });
     }
 
-    public ArrayList<Ball> getBalls() {
-        return balls;
-    }
+    public ArrayList<Ball> getBalls() { return balls; }
+    public void setFreezeFramesLeft(int freezeFramesLeft) { this.freezeFramesLeft = freezeFramesLeft; }
 
     /**
      * Draws the Playground object on screen.
@@ -93,12 +95,20 @@ public class Playground extends JPanel {
         }
 
         for (Brick b : bricks) {
+            if (freezeFramesLeft > 0)
+                b.setSpeed(0);
+            else 
+                b.setSpeed(brickSpeed);
+            
             b.update();
         }
 
-        for (Powerup p : powerups) {
+        for (Powerup p : powerups) 
             p.update();
-        }
+
+        if (freezeFramesLeft > 0)
+            freezeFramesLeft--;
+
     }
 
     private boolean intersects(Circle circ, Rectangle rect) {
@@ -131,9 +141,17 @@ public class Playground extends JPanel {
             collideWithPaddle(b);
         }
 
+        ArrayList<Powerup> garbage = new ArrayList<>();
+
         for (Powerup p : powerups) {
-            collideWithPaddle(p);
+            if (intersects(p, playerPaddle)) {
+                p.activate(this);
+                garbage.add(p);
+            }
         }
+
+        for (Powerup p : garbage)
+            powerups.remove(p);
     }
 
     public void collideWithWalls(Ball b) {
@@ -201,11 +219,11 @@ public class Playground extends JPanel {
             }
         }
 
-        for (Brick brick : garbage)
-            bricks.remove(brick);
-
         if (vBounce) vel.scaleY(-1);
         if (hBounce) vel.scaleX(-1);
+
+        for (Brick brick : garbage)
+            bricks.remove(brick);
     }
 
     public void collideWithPaddle(Ball b) {
@@ -220,16 +238,9 @@ public class Playground extends JPanel {
         }
     }
 
-    public void collideWithPaddle(Powerup p) {
-        if (intersects(p, playerPaddle)) {
-            p.activate(this);
-            powerups.remove(p);
-        }
-    }
-
-    public void addBrickRow(double height) {
+    public void addBrickRow(double y) {
         for (int i = -4; i <= 4; i++) {
-            bricks.add(new Brick(new Vector(200 + i * 45, height)));    
+            bricks.add(new Brick(new Vector(200 + i * 45, y)));    
         }
     }
 }
