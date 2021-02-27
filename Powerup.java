@@ -1,17 +1,23 @@
 import java.awt.*;
+import java.util.Random;
 
 public class Powerup extends Circle {
     private int type;
 
-    static final int NONE = 0;
     static final int EXTRA_BALL = 1;
     static final int EXTRA_BALLS = 2;
     static final int FREEZE_BRICKS = 3; // bricks stop coming down
 
+    static Random rand = new Random();
 
     public Powerup(Vector pos, int type) {
         super(pos, new Vector(0, 1), 5);
         this.type = type;
+    }
+
+    public Powerup(Vector pos) {
+        super(pos, new Vector(0, 1), 5);
+        this.type = 1 + rand.nextInt(3);
     }
 
     public int getType() { return type; }

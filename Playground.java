@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.lang.Math.*;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -13,31 +12,28 @@ public class Playground extends JPanel {
     private transient ArrayList<Powerup> powerups = new ArrayList<>();
     private transient Paddle playerPaddle;
 
+    private int frameCount = 0;
     private JLabel score;
     private int scoreVal = 0;
     private double brickSpeed = 0.1;
     private int freezeFramesLeft = 0;
-
+   
     public Playground(JLabel sScore) {
         super();
 
         score = sScore;
 
-        Vector pos = new Vector(200, 365);
-        Vector vel = new Vector(
-            (rand.nextDouble() - 0.5) * 4,
-            -5
-        );
+        Vector pos = new Vector(200, 350);
+        Vector vel = new Vector(rand.nextDouble() * 4, -5);
         balls.add(new Ball(pos, vel));
 
         playerPaddle = new Paddle(new Vector(0, 375));
         playerPaddle.setColor(new Color(150, 150, 150));
 
-        powerups.add(new Powerup(new Vector(200, 100), 2));
-
-        addBrickRow(30);
-        addBrickRow(55);
-        addBrickRow(80);
+        addRandomBrickRow(15);
+        addRandomBrickRow(40);
+        addRandomBrickRow(65);
+        addRandomBrickRow(90);
 
         this.addMouseMotionListener(new MouseMotionListener() {
             public void mouseMoved(MouseEvent e) {
@@ -89,15 +85,19 @@ public class Playground extends JPanel {
      * Moves all sprites according to their speed.
      */
     public void animate() {
+        autoPlay();
+
         for (Ball b : balls) {
             b.update();
             b.getVel().setMag(5); // keeps the ball from going too fast or too slow
         }
 
+        removeFallenBalls();
+
         for (Brick b : bricks) {
             if (freezeFramesLeft > 0)
                 b.setSpeed(0);
-            else 
+            else
                 b.setSpeed(brickSpeed);
             
             b.update();
@@ -106,9 +106,17 @@ public class Playground extends JPanel {
         for (Powerup p : powerups) 
             p.update();
 
+        removeFallenPowerups();
+
         if (freezeFramesLeft > 0)
             freezeFramesLeft--;
 
+        generateBricks();
+
+        brickSpeed = 0.1 + 0.05*(scoreVal/100);
+
+        if (freezeFramesLeft == 0)
+            frameCount++;
     }
 
     private boolean intersects(Circle circ, Rectangle rect) {
@@ -154,7 +162,7 @@ public class Playground extends JPanel {
             powerups.remove(p);
     }
 
-    public void collideWithWalls(Ball b) {
+    private void collideWithWalls(Ball b) {
         Vector pos = b.getPos();
         Vector vel = b.getVel();
         double r = b.getRadius();
@@ -173,7 +181,7 @@ public class Playground extends JPanel {
         }
     }
 
-    public void collideWithBricks(Ball b) {
+    private void collideWithBricks(Ball b) {
         Vector pos = b.getPos();
         Vector vel = b.getVel();
 
@@ -222,11 +230,13 @@ public class Playground extends JPanel {
         if (vBounce) vel.scaleY(-1);
         if (hBounce) vel.scaleX(-1);
 
-        for (Brick brick : garbage)
+        for (Brick brick : garbage) {
+            brick.releasePowerup(powerups);
             bricks.remove(brick);
+        }
     }
 
-    public void collideWithPaddle(Ball b) {
+    private void collideWithPaddle(Ball b) {
         Vector pos = b.getPos();
         Vector vel = b.getVel();
 
@@ -235,12 +245,80 @@ public class Playground extends JPanel {
             double horiDist = pos.getX() - playerPaddle.getPos().getX();
             double hitLocation = horiDist/playerPaddle.getWidth()*2; // -1 -> leftmost, 1 -> rightmost
             vel.add(new Vector(hitLocation*1.5, 0)); // alters ball direction
+            pos.setY(355);
         }
     }
 
-    public void addBrickRow(double y) {
-        for (int i = -4; i <= 4; i++) {
-            bricks.add(new Brick(new Vector(200 + i * 45, y)));    
+    private void generateBricks() {
+        if (frameCount % (int)(25 / brickSpeed) == 0) {
+            if (frameCount % (int)(200 / brickSpeed) == 0)
+                addSpecialBrickRow(-10);
+            else
+                addRandomBrickRow(-10);
+            
         }
+    }
+
+    private void addRandomBrickRow(double y) {
+        for (int i = -4; i <= 4; i++) {
+            if (rand.nextBoolean()) {
+                Brick b = new Brick(new Vector(200 + i * 45, y));
+                if (rand.nextDouble() > 0.9)
+                    b.addRandomPowerup();
+                bricks.add(b);
+            }
+        }
+    }
+
+    private void addSpecialBrickRow(double y) {
+        double[][] pairs = {{10, 20}, {40, 30}, {80, 40}, {130, 50}};
+        for (double[] pair : pairs) {
+            bricks.add(new Brick(new Vector(pair[0], y), pair[1]));
+            bricks.add(new Brick(new Vector(400-pair[0], y), pair[1]));
+        }
+        bricks.add(new Brick(new Vector(200, y), 80));
+    }
+
+    private void removeFallenBalls() {
+        ArrayList<Ball> garbage = new ArrayList<>(); 
+
+        for (Ball b : balls) {
+            if (b.getPos().getY() > 400 + b.getRadius()) {
+                garbage.add(b);
+            }
+        }
+        balls.removeAll(garbage);
+    }
+
+    private void removeFallenPowerups() {
+        ArrayList<Powerup> garbage = new ArrayList<>(); 
+
+        for (Powerup p : powerups) {
+            if (p.getPos().getY() > 400 + p.getRadius()) {
+                garbage.add(p);
+            }
+        }
+        powerups.removeAll(garbage);
+    }
+
+    private void autoPlay() {
+        double xPos = 200;;
+        if (!balls.isEmpty()) {
+            xPos = 0;
+            double coefTotal = 0;
+            for (int i=0; i<balls.size(); i++) {
+                double coef = Math.exp(balls.get(i).getPos().getY()/400*20);
+                coefTotal += coef;
+                xPos += coef*balls.get(i).getPos().getX();
+            }
+            for (int i=0; i<powerups.size(); i++) {
+                double coef = Math.exp(powerups.get(i).getPos().getY()/400*20);
+                coefTotal += coef;
+                xPos += coef*powerups.get(i).getPos().getX();
+            }
+            xPos /= coefTotal;
+        }
+        Vector pPos = playerPaddle.getPos();
+        pPos.setX(xPos*0.2 + pPos.getX()*0.8);
     }
 }
