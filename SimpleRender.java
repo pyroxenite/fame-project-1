@@ -5,7 +5,8 @@ public class SimpleRender implements Runnable {
     private static final int FPS = 60;
     private JFrame frame = new JFrame();
     private JLabel score = new JLabel("Score: 0");
-    private Playground playground = new Playground(score);
+    private JLabel lives = new JLabel("Lives: 3");
+    private Playground playground = new Playground(score, lives);
 
     public SimpleRender() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -14,8 +15,10 @@ public class SimpleRender implements Runnable {
 
         playground.setBounds(0, 25, 400, 400);
         score.setBounds(0, 0, 100, 25);
+        lives.setBounds(300, 0, 100, 25);
         frame.add(playground);
         frame.add(score);
+        frame.add(lives);
 
         //playground.repaint();
 

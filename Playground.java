@@ -14,21 +14,29 @@ public class Playground extends JPanel {
 
     private int frameCount = 0;
     private JLabel score;
+    private JLabel lives;
     private int scoreVal = 0;
+    private int livesVal = 3;
     private double brickSpeed = 0.1;
     private int freezeFramesLeft = 0;
-   
-    public Playground(JLabel sScore) {
-        super();
 
-        score = sScore;
-
+    private void resetGameState() {
         Vector pos = new Vector(200, 350);
         Vector vel = new Vector(rand.nextDouble() * 4, -5);
         balls.add(new Ball(pos, vel));
+        bricks.clear();
 
         playerPaddle = new Paddle(new Vector(0, 375));
         playerPaddle.setColor(new Color(150, 150, 150));
+    }
+   
+    public Playground(JLabel sScore, JLabel sLives) {
+        super();
+
+        score = sScore;
+        lives = sLives;
+
+        resetGameState();
 
         addRandomBrickRow(15);
         addRandomBrickRow(40);
@@ -70,11 +78,13 @@ public class Playground extends JPanel {
             bricks.get(i).draw(g);
         }
 
-        for (Powerup p : powerups)
-            p.draw(g);
+        for (int i = 0; i < powerups.size(); i++) {
+            powerups.get(i).draw(g);
+        }
 
-        for (Ball b : balls)
-            b.draw(g);
+        for (int i = 0; i < balls.size(); i++) {
+            balls.get(i).draw(g);
+        }
 
         playerPaddle.draw(g);
 
@@ -284,10 +294,20 @@ public class Playground extends JPanel {
 
         for (Ball b : balls) {
             if (b.getPos().getY() > 400 + b.getRadius()) {
-                garbage.add(b);
+                garbage.add(b);        
             }
         }
+
         balls.removeAll(garbage);
+        if (balls.size() == 0) { //if it's last ball
+            if (--livesVal < 1) {
+                scoreVal = 0;
+                score.setText("Score: 0");
+            }
+            resetGameState();
+            livesVal = 3;
+            lives.setText("Lives: " + livesVal);
+        }
     }
 
     private void removeFallenPowerups() {

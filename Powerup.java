@@ -26,7 +26,7 @@ public class Powerup extends Circle {
     @Override
     public void draw(Graphics g) {
         switch (type) {
-            case EXTRA_BALL, EXTRA_BALLS:
+            case EXTRA_BALL:
                 g.setColor(new Color(230, 230, 0)); break;
             case FREEZE_BRICKS:
                 g.setColor(new Color(0, 200, 255)); break;
