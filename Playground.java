@@ -19,6 +19,7 @@ public class Playground extends JPanel {
     private int livesVal = 3;
     private double brickSpeed = 0.1;
     private int freezeFramesLeft = 0;
+    private int waitFramesLeft = 0; // to pause the game for a few frames between resets
 
     private void resetGameState() {
         Vector pos = new Vector(200, 350);
@@ -26,8 +27,15 @@ public class Playground extends JPanel {
         balls.add(new Ball(pos, vel));
         bricks.clear();
 
+        addRandomBrickRow(15);
+        addRandomBrickRow(40);
+        addRandomBrickRow(65);
+        addRandomBrickRow(90);
+
         playerPaddle = new Paddle(new Vector(0, 375));
         playerPaddle.setColor(new Color(150, 150, 150));
+
+        waitFramesLeft += 120; // wait two seconds
     }
    
     public Playground(JLabel sScore, JLabel sLives) {
@@ -37,11 +45,6 @@ public class Playground extends JPanel {
         lives = sLives;
 
         resetGameState();
-
-        addRandomBrickRow(15);
-        addRandomBrickRow(40);
-        addRandomBrickRow(65);
-        addRandomBrickRow(90);
 
         this.addMouseMotionListener(new MouseMotionListener() {
             public void mouseMoved(MouseEvent e) {
@@ -95,6 +98,11 @@ public class Playground extends JPanel {
      * Moves all sprites according to their speed.
      */
     public void animate() {
+        if (waitFramesLeft > 0) {
+            waitFramesLeft--;
+            return;
+        }
+
         autoPlay();
 
         for (Ball b : balls) {
@@ -104,6 +112,11 @@ public class Playground extends JPanel {
 
         removeFallenBalls();
 
+        for (Powerup p : powerups) 
+            p.update();
+
+        removeFallenPowerups();
+
         for (Brick b : bricks) {
             if (freezeFramesLeft > 0)
                 b.setSpeed(0);
@@ -112,11 +125,6 @@ public class Playground extends JPanel {
             
             b.update();
         }
-
-        for (Powerup p : powerups) 
-            p.update();
-
-        removeFallenPowerups();
 
         if (freezeFramesLeft > 0)
             freezeFramesLeft--;
@@ -299,13 +307,14 @@ public class Playground extends JPanel {
         }
 
         balls.removeAll(garbage);
-        if (balls.size() == 0) { //if it's last ball
+        if (balls.size() == 0) { // if it's last ball
             if (--livesVal < 1) {
                 scoreVal = 0;
+                livesVal = 3;
                 score.setText("Score: 0");
+                waitFramesLeft += 120;
             }
             resetGameState();
-            livesVal = 3;
             lives.setText("Lives: " + livesVal);
         }
     }
@@ -322,7 +331,7 @@ public class Playground extends JPanel {
     }
 
     private void autoPlay() {
-        double xPos = 200;;
+        double xPos = 200;
         if (!balls.isEmpty()) {
             xPos = 0;
             double coefTotal = 0;
