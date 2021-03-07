@@ -7,6 +7,7 @@ public class Powerup extends Circle {
     static final int EXTRA_BALL = 1;
     static final int EXTRA_BALLS = 2;
     static final int FREEZE_BRICKS = 3; // bricks stop coming down
+    static final int ENLARGE_PADDLE = 4; // bricks stop coming down
 
     static Random rand = new Random();
 
@@ -17,7 +18,7 @@ public class Powerup extends Circle {
 
     public Powerup(Vector pos) {
         super(pos, new Vector(0, 1), 5);
-        this.type = 1 + rand.nextInt(3);
+        this.type = 1 + rand.nextInt(4);
     }
 
     public int getType() { return type; }
@@ -26,11 +27,11 @@ public class Powerup extends Circle {
     @Override
     public void draw(Graphics g) {
         switch (type) {
-            case EXTRA_BALL:
+            case EXTRA_BALL, EXTRA_BALLS:
                 g.setColor(new Color(230, 230, 0)); break;
             case FREEZE_BRICKS:
                 g.setColor(new Color(0, 200, 255)); break;
-            case 4: // ??
+            case ENLARGE_PADDLE:
                 g.setColor(new Color(230, 100, 0)); break;
             default:
                 return;
@@ -48,15 +49,17 @@ public class Powerup extends Circle {
     public void activate(Playground p) {
         Ball newBall;
         switch (type) {
-            case 1: // extra ball powerup
+            case EXTRA_BALL:
                 newBall = new Ball(
                     p.getBalls().get(0).getPos().copy(),
                     p.getBalls().get(0).getVel().copy()
                 ); 
                 newBall.getVel().rotate(Math.PI / 6);
                 p.getBalls().add(newBall);
+                p.announcements.add(new Announcement("Extra Ball!", 60, false));
                 break;
-            case 2: // extra balls powerup
+
+            case EXTRA_BALLS:
                 for (int i=0; i<3; i++) {
                     newBall = new Ball(
                         p.getBalls().get(0).getPos().copy(),
@@ -65,10 +68,19 @@ public class Powerup extends Circle {
                     newBall.getVel().rotate(Math.PI / 20 * (i+1));
                     p.getBalls().add(newBall);
                 }
+                p.announcements.add(new Announcement("3 Extra Balls!", 60, false));
                 break;
-            case 3: // freeze powerup
-                p.setFreezeFramesLeft(60 * 5); // 5 seconds
+
+            case FREEZE_BRICKS:
+                p.setFreezeFramesLeft(60 * 5);
+                p.announcements.add(new Announcement("Blocks Freezed!", 60, false));
                 break;
+
+            case ENLARGE_PADDLE:
+                p.getPaddle().setWidth(180);
+                p.announcements.add(new Announcement("Enlarged Paddle!", 60, false));
+                break;
+                
             default:
                 return;
         }

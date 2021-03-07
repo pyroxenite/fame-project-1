@@ -3,7 +3,7 @@ all: SimpleRender.class
 SimpleRender.class: SimpleRender.java Playground.class
 	javac SimpleRender.java
 
-Playground.class: Playground.java Vector.class Ball.class Paddle.class Brick.class Powerup.class
+Playground.class: Playground.java Vector.class Ball.class Paddle.class Brick.class Powerup.class Announcement.class
 	javac Playground.java
 
 Paddle.class: Paddle.java Rectangle.class Vector.class
@@ -29,6 +29,9 @@ Sprite.class: Sprite.java Vector.class
 
 Vector.class: Vector.java
 	javac Vector.java
+
+Announcement.class: Announcement.java
+	javac Announcement.java
 
 clean: 
 	rm *.class

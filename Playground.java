@@ -18,8 +18,10 @@ public class Playground extends JPanel {
     private int scoreVal = 0;
     private int livesVal = 3;
     private double brickSpeed = 0.1;
+    private double ballSpeed = 5;
     private int freezeFramesLeft = 0;
-    private int waitFramesLeft = 0; // to pause the game for a few frames between resets
+
+    public transient ArrayList<Announcement> announcements = new ArrayList<>();
 
     private void resetGameState() {
         Vector pos = new Vector(200, 350);
@@ -35,7 +37,10 @@ public class Playground extends JPanel {
         playerPaddle = new Paddle(new Vector(0, 375));
         playerPaddle.setColor(new Color(150, 150, 150));
 
-        waitFramesLeft += 120; // wait two seconds
+        announcements.add(new Announcement("3", 40));
+        announcements.add(new Announcement("2", 40));
+        announcements.add(new Announcement("1", 40));
+        announcements.add(new Announcement("Go!", 40, false));
     }
    
     public Playground(JLabel sScore, JLabel sLives) {
@@ -43,6 +48,8 @@ public class Playground extends JPanel {
 
         score = sScore;
         lives = sLives;
+
+        announcements.add(new Announcement("GAMENAME", 240));
 
         resetGameState();
 
@@ -58,6 +65,7 @@ public class Playground extends JPanel {
     }
 
     public ArrayList<Ball> getBalls() { return balls; }
+    public Paddle getPaddle() { return playerPaddle; }
     public void setFreezeFramesLeft(int freezeFramesLeft) { this.freezeFramesLeft = freezeFramesLeft; }
 
     /**
@@ -77,19 +85,19 @@ public class Playground extends JPanel {
         g.setColor(new Color(255, 255, 255));
         g.fillRect(0, 0, 400, 400);
 
-        for (int i = 0; i < bricks.size(); i++) {
+        // draw various sprites
+        for (int i = 0; i < bricks.size(); i++)
             bricks.get(i).draw(g);
-        }
 
-        for (int i = 0; i < powerups.size(); i++) {
+        for (int i = 0; i < powerups.size(); i++)
             powerups.get(i).draw(g);
-        }
 
-        for (int i = 0; i < balls.size(); i++) {
+        for (int i = 0; i < balls.size(); i++)
             balls.get(i).draw(g);
-        }
 
         playerPaddle.draw(g);
+
+        drawAnnouncements(g);
 
         this.repaint();
     }
@@ -98,16 +106,22 @@ public class Playground extends JPanel {
      * Moves all sprites according to their speed.
      */
     public void animate() {
-        if (waitFramesLeft > 0) {
-            waitFramesLeft--;
-            return;
+        if (!announcements.isEmpty()) {
+            if (announcements.get(0).shouldPauseGame()) {
+                updateAnnouncements();
+                return;
+            } else {
+                updateAnnouncements();
+            }
         }
 
         autoPlay();
 
+        ballSpeed = 5.0 + scoreVal/100.0;
+
         for (Ball b : balls) {
             b.update();
-            b.getVel().setMag(5); // keeps the ball from going too fast or too slow
+            b.getVel().setMag(ballSpeed); // keeps the ball from going too fast or too slow
         }
 
         removeFallenBalls();
@@ -126,15 +140,17 @@ public class Playground extends JPanel {
             b.update();
         }
 
-        if (freezeFramesLeft > 0)
-            freezeFramesLeft--;
-
         generateBricks();
 
         brickSpeed = 0.1 + 0.05*(scoreVal/100);
 
+        if (freezeFramesLeft > 0)
+            freezeFramesLeft--;
+
         if (freezeFramesLeft == 0)
             frameCount++;
+
+        playerPaddle.update();
     }
 
     private boolean intersects(Circle circ, Rectangle rect) {
@@ -307,12 +323,14 @@ public class Playground extends JPanel {
         }
 
         balls.removeAll(garbage);
-        if (balls.size() == 0) { // if it's last ball
+        if (balls.isEmpty()) { // if it's last ball
             if (--livesVal < 1) {
+                announcements.add(new Announcement("Game Over!", 120));
+                announcements.add(new Announcement("Your score: "+scoreVal, 120));
                 scoreVal = 0;
                 livesVal = 3;
                 score.setText("Score: 0");
-                waitFramesLeft += 120;
+                
             }
             resetGameState();
             lives.setText("Lives: " + livesVal);
@@ -349,5 +367,37 @@ public class Playground extends JPanel {
         }
         Vector pPos = playerPaddle.getPos();
         pPos.setX(xPos*0.2 + pPos.getX()*0.8);
+    }
+
+    private void drawAnnouncements(Graphics g) {
+        if (announcements.isEmpty()) return;
+
+        Announcement currentAnnouncement = announcements.get(0);
+        double progress = currentAnnouncement.getProgress();
+        String text = currentAnnouncement.getText();
+
+        Font gameFont;
+        int fontSize = 40;
+        if (text.length() <= 3)
+            fontSize = (int) (progress * 150);
+        gameFont = new Font("Arial", Font.PLAIN, fontSize);
+        g.setFont(gameFont);
+
+        FontMetrics metrics = g.getFontMetrics(gameFont);
+        int xOffset = metrics.stringWidth(text) / 2;
+        
+        g.setColor(new Color(240, 100, 0, (int) (255-255*progress)));
+        g.drawString(text, 200-xOffset, 200+fontSize/3);
+    }
+
+    private void updateAnnouncements() {
+        if (announcements.isEmpty()) return;
+
+        Announcement currentAnnouncement = announcements.get(0);
+
+        currentAnnouncement.decrementFramesLeft();
+
+        if (currentAnnouncement.isExpired())
+            announcements.remove(currentAnnouncement);
     }
 }
