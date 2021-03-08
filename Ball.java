@@ -13,6 +13,17 @@ public class Ball extends Circle {
         return "Ball: {\n    pos: " + this.getPos() + ",\n    vel: " + this.getVel() + "\n}";
     }
 
+    @Override
+    public void update() {
+        getPos().add(getVel());
+        if (Math.abs(getVel().getY()) < 3) {
+            getVel().scaleY(2);
+        }
+        if (Math.abs(getVel().getY()) == 0) {
+            getVel().setY(-3);
+        }
+    }
+
     public static void main(String[] args) {
         Vector pos = new Vector(30, 30);
         Vector vel = new Vector(2, 2);

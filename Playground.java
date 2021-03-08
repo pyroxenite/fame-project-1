@@ -71,8 +71,11 @@ public class Playground extends JPanel {
         addRandomBrickRow(90);
 
         // New paddle
-        playerPaddle = new Paddle(new Vector(200, 375));
+        playerPaddle = new Paddle(new Vector(200, 440));
         playerPaddle.setColor(new Color(150, 150, 150));
+
+        // Clear powerups
+        powerups.clear();
 
         // Count down
         announcements.add(new Announcement("3", 40));
@@ -131,6 +134,10 @@ public class Playground extends JPanel {
      * most game operations.
      */
     public void animate() {
+        if (playerPaddle.getPos().getY() > 375) {
+            playerPaddle.getPos().add(new Vector(0, -2));
+        }
+
         if (!announcements.isEmpty()) {
             if (announcements.get(0).shouldPauseGame()) {
                 updateAnnouncements();
@@ -184,12 +191,15 @@ public class Playground extends JPanel {
                 announcements.add(new Announcement("Your score: "+scoreVal, 120));
                 scoreVal = 0;
                 livesVal = 3;
-                score.setText(" Score: 0");
+                score.setText("Score: 0");
             } else {
                 announcements.add(new Announcement("Lives left: "+livesVal, 60));
             }
             resetGameState();
-            lives.setText(" Lives: " + livesVal);
+            String livesText = " Lives: ";
+            for (int i=0; i<livesVal; i++) 
+                livesText += "❤";
+            lives.setText(livesText);
         }
     }
         
@@ -343,9 +353,9 @@ public class Playground extends JPanel {
      */
     private void addRandomBrickRow(double y) {
         for (int i = -4; i <= 4; i++) {
-            if (rand.nextBoolean()) {
+            if (rand.nextDouble() > 0.3) {
                 Brick b = new Brick(new Vector(200 + i * 45, y));
-                if (rand.nextDouble() > 0.9)
+                if (rand.nextDouble() > 0.95)
                     b.addRandomPowerup();
                 bricks.add(b);
             }
@@ -408,14 +418,14 @@ public class Playground extends JPanel {
                 xPos += coef*balls.get(i).getPos().getX();
             }
             for (int i=0; i<powerups.size(); i++) {
-                double coef = Math.exp(powerups.get(i).getPos().getY()/400*20);
+                double coef = Math.exp(powerups.get(i).getPos().getY()/400*19.5);
                 coefTotal += coef;
                 xPos += coef*powerups.get(i).getPos().getX();
             }
             xPos /= coefTotal;
         }
         Vector pPos = playerPaddle.getPos();
-        pPos.setX(xPos*0.2 + pPos.getX()*0.8);
+        pPos.setX(xPos*0.3 + pPos.getX()*0.7);
     }
 
     /**

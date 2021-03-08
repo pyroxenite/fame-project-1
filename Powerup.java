@@ -21,7 +21,12 @@ public class Powerup extends Circle {
 
     public Powerup(Vector pos) {
         super(pos, new Vector(0, 1), 5);
-        this.type = 1 + rand.nextInt(4);
+        if (rand.nextDouble() > 0.7) {
+            this.type = 1 + rand.nextInt(2);
+        } else {
+            this.type = 3 + rand.nextInt(2);
+        }
+        
     }
 
     public int getType() { return type; }
@@ -63,7 +68,7 @@ public class Powerup extends Circle {
                 break;
 
             case EXTRA_BALLS:
-                for (int i=0; i<3; i++) {
+                for (int i=0; i<2; i++) {
                     newBall = new Ball(
                         p.getBalls().get(0).getPos().copy(),
                         p.getBalls().get(0).getVel().copy()
@@ -71,7 +76,7 @@ public class Powerup extends Circle {
                     newBall.getVel().rotate(Math.PI / 20 * (i+1));
                     p.getBalls().add(newBall);
                 }
-                p.addAnnouncement(new Announcement("3 Extra Balls!", 60, false));
+                p.addAnnouncement(new Announcement("Two Extra Balls!", 60, false));
                 break;
 
             case FREEZE_BRICKS:
@@ -80,7 +85,9 @@ public class Powerup extends Circle {
                 break;
 
             case ENLARGE_PADDLE:
-                p.getPaddle().setWidth(180);
+                p.getPaddle().setWidth(
+                    Math.min(250, p.getPaddle().getWidth()*1.5)
+                );
                 p.addAnnouncement(new Announcement("Enlarged Paddle!", 60, false));
                 break;
                 
