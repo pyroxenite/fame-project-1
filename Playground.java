@@ -17,6 +17,8 @@ public class Playground extends JPanel {
     private int livesVal = 3;
     private double brickSpeed = 0.1;
     private int freezeFramesLeft = 0;
+
+    private boolean autoPlayState = false;
     
     private transient ArrayList<Ball> balls = new ArrayList<>();
     private transient ArrayList<Brick> bricks = new ArrayList<>();
@@ -29,11 +31,11 @@ public class Playground extends JPanel {
      * @param superScore Parent JLabel instance for score.
      * @param superLives Parent JLabel instance for remaining lives.
      */
-    public Playground(JLabel superScore, JLabel superLives) {
+    public Playground(JLabel score, JLabel lives) {
         super();
 
-        score = superScore;
-        lives = superLives;
+        this.score = score;
+        this.lives = lives;
 
         // Display game name
         announcements.add(new Announcement("GAMENAME", 240)); //  <--- insert game name
@@ -44,11 +46,13 @@ public class Playground extends JPanel {
         // Setup mouse events
         this.addMouseMotionListener(new MouseMotionListener() {
             public void mouseMoved(MouseEvent e) {
-                playerPaddle.getPos().setX(e.getX());
+                if (!autoPlayState)
+                    playerPaddle.getPos().setX(e.getX());
             }
             
             public void mouseDragged(MouseEvent e) {
-                playerPaddle.getPos().setX(e.getX());
+                if (!autoPlayState)
+                    playerPaddle.getPos().setX(e.getX());
             }
         });
     }
@@ -61,6 +65,7 @@ public class Playground extends JPanel {
         // New ball
         Vector pos = new Vector(200, 350);
         Vector vel = new Vector(rand.nextDouble() * 4, -5);
+        balls.clear();
         balls.add(new Ball(pos, vel));
         
         // Initial bricks
@@ -148,7 +153,8 @@ public class Playground extends JPanel {
 
         executeGameLogic();
 
-        autoPlay();
+        if (autoPlayState)
+            autoPlay();
 
         double ballSpeed = Math.min(5.0 + scoreVal/100.0, 10.0);
         for (Ball b : balls) {
@@ -180,12 +186,21 @@ public class Playground extends JPanel {
         playerPaddle.update();
     }
 
+    private boolean allBricksAreAboveGround() {
+        for (Brick b : bricks) {
+            if (b.getPos().getY() > 400 - 20) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Handles game logic. Checks whether at least one ball remains and
      * whether no brick touches the ground.
      */
     private void executeGameLogic() {
-        if (balls.isEmpty()) { // if it's last ball
+        if (balls.isEmpty() || !allBricksAreAboveGround()) { // if it's last ball
             if (--livesVal < 1) { // if it's last life
                 announcements.add(new Announcement("Game Over!", 120));
                 announcements.add(new Announcement("Your score: "+scoreVal, 120));
@@ -426,6 +441,14 @@ public class Playground extends JPanel {
         }
         Vector pPos = playerPaddle.getPos();
         pPos.setX(xPos*0.3 + pPos.getX()*0.7);
+    }
+
+    public void enableAI() {
+        autoPlayState = true;
+    }
+
+    public void disableAI() {
+        autoPlayState = false;
     }
 
     /**

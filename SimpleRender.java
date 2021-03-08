@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.concurrent.*;
 
 /**
@@ -9,6 +11,7 @@ public class SimpleRender implements Runnable {
     private JFrame frame = new JFrame();
     private JLabel score = new JLabel("Score: 0");
     private JLabel lives = new JLabel(" Lives: ❤❤❤");
+    private JCheckBox aiCheckBox = new JCheckBox("Auto Play");
     private Playground playground = new Playground(score, lives);
 
     public SimpleRender() {
@@ -18,11 +21,24 @@ public class SimpleRender implements Runnable {
 
         playground.setBounds(0, 25, 400, 400);
         lives.setBounds(0, 0, 100, 25);
-        score.setBounds(200-25, 0, 100, 25);
+        score.setBounds(200-35, 0, 100, 25);
+        aiCheckBox.setBounds(300, 0, 100, 25);
         frame.add(playground);
-        frame.add(score);
         frame.add(lives);
+        frame.add(score);
+        frame.add(aiCheckBox);
 
+        aiCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(aiCheckBox.isSelected()) {
+                    playground.enableAI();
+                } else {
+                    playground.disableAI();
+                }
+            }
+        });
+        
         //playground.repaint();
 
         frame.setVisible(true);
