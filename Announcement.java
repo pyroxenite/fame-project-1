@@ -1,3 +1,6 @@
+/**
+ * A class to represent annoucements.
+ */
 public class Announcement {
     private String text;
     private int framesLeft;

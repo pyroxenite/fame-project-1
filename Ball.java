@@ -1,5 +1,8 @@
 import java.awt.*;
 
+/**
+ * A Circle subclass that represents a ball.
+ */
 public class Ball extends Circle {
     public Ball(Vector pos, Vector vel) {
         super(pos, vel, 10);

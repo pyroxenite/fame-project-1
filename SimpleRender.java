@@ -1,6 +1,9 @@
 import javax.swing.*;
 import java.util.concurrent.*;
 
+/**
+ * Class to run the Swing application.
+ */
 public class SimpleRender implements Runnable {
     private static final int FPS = 60;
     private JFrame frame = new JFrame();

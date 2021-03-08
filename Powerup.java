@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.util.Random;
 
+/**
+ * A Circle subclass that represents a powerup.
+ */
 public class Powerup extends Circle {
     private int type;
 
@@ -56,7 +59,7 @@ public class Powerup extends Circle {
                 ); 
                 newBall.getVel().rotate(Math.PI / 6);
                 p.getBalls().add(newBall);
-                p.announcements.add(new Announcement("Extra Ball!", 60, false));
+                p.addAnnouncement(new Announcement("Extra Ball!", 60, false));
                 break;
 
             case EXTRA_BALLS:
@@ -68,17 +71,17 @@ public class Powerup extends Circle {
                     newBall.getVel().rotate(Math.PI / 20 * (i+1));
                     p.getBalls().add(newBall);
                 }
-                p.announcements.add(new Announcement("3 Extra Balls!", 60, false));
+                p.addAnnouncement(new Announcement("3 Extra Balls!", 60, false));
                 break;
 
             case FREEZE_BRICKS:
                 p.setFreezeFramesLeft(60 * 5);
-                p.announcements.add(new Announcement("Blocks Freezed!", 60, false));
+                p.addAnnouncement(new Announcement("Blocks Freezed!", 60, false));
                 break;
 
             case ENLARGE_PADDLE:
                 p.getPaddle().setWidth(180);
-                p.announcements.add(new Announcement("Enlarged Paddle!", 60, false));
+                p.addAnnouncement(new Announcement("Enlarged Paddle!", 60, false));
                 break;
                 
             default:

@@ -1,5 +1,8 @@
 import java.awt.*;
 
+/**
+ * A Sprite implementation that represents a rectangle.
+ */
 public class Rectangle implements Sprite {
     private Vector pos;
     private double width = 100;

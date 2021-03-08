@@ -1,6 +1,9 @@
 import java.util.*;
 import java.awt.*;
 
+/**
+ * A Rectangle subclass that represents a breakable brick.
+ */
 public class Brick extends Rectangle {
     private Powerup powerup = null;
     private double speed = 0.05;

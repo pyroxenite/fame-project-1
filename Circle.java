@@ -1,5 +1,8 @@
 import java.awt.*;
 
+/**
+ * A Sprite subclass for circular spirtes.
+ */
 public class Circle implements Sprite {
     private Vector pos;
     private Vector vel;

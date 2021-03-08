@@ -1,3 +1,6 @@
+/**
+ * A Rectangle subclass that represents a paddle.
+ */
 public class Paddle extends Rectangle {
     public Paddle(Vector pos) {
         super(pos, 100, 20);
